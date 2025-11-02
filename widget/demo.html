@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>XDC Checkout Demo</title>
   <meta name="viewport" content="width=device-width">
-  <style>body {font-family: sans-serif; padding: 2rem; max-width: 500px; margin: auto;}</style>
+  <style>
+    body {font-family: sans-serif; padding: 2rem; max-width: 500px; margin: auto; text-align: center;}
+    h1 {color: #00bcd4;}
+  </style>
 </head>
 <body>
   <h1>XDC Checkout</h1>
   <p>Buy "Digital Art Pack" for 3 XDC</p>
 
-  <div data-xdc-checkout data-price="3" data-contract="0xYourContractHere">
-    <!-- Button auto-injects -->
+  <!-- REPLACE WITH YOUR DEPLOYED CONTRACT -->
+  <div data-xdc-checkout data-price="3" data-contract="0xYourContractAddressHere">
+    <!-- Button auto-injected -->
   </div>
 
+  <!-- Load widget -->
   <script src="xdc-checkout.js"></script>
 </body>
 </html>
