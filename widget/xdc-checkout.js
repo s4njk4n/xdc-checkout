@@ -13,7 +13,7 @@ const XDC_NETWORK = {
   chainId: '0x32',  // ← FIXED: Was 0x2f (wrong)
   chainName: 'XDC Network',
   nativeCurrency: { name: 'XDC', symbol: 'XDC', decimals: 18 },
-  rpcUrls: ['https://rpc.xinfin.network'],
+  rpcUrls: ['https://rpc.ankr.com/xdc'],
   blockExplorerUrls: ['https://xdcscan.io']
 };
 
