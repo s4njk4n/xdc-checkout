@@ -9,19 +9,23 @@ const XDC_NETWORK = {
   blockExplorerUrls: ['https://xdcscan.io']
 };
 
-// Helper: Convert string to hex (manual ABI encoding for pay(string))
+// Helper: Convert string to hex (without '0x')
 function stringToHex(str) {
   let hex = '';
   for (let i = 0; i < str.length; i++) {
-    const charCode = str.charCodeAt(i).toString(16).padStart(2, '0');
-    hex += charCode;
+    hex += str.charCodeAt(i).toString(16).padStart(2, '0');
   }
   return hex;
 }
 
-// Helper: Pad hex string to 32 bytes (64 chars)
-function padTo32Bytes(hex) {
-  return hex.padStart(64, '0');
+// Helper: Pad hex string left to 64 chars (32 bytes) with '0'
+function padLeft(hex, length = 64) {
+  return hex.padStart(length, '0');
+}
+
+// Helper: Pad hex string right to multiple of 64 chars with '0'
+function padRight(hex, length) {
+  return hex.padEnd(length, '0');
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -46,6 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("MetaMask not detected! Install from https://metamask.io");
         return;
       }
+
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
 
       try {
         // Connect wallet
@@ -72,16 +79,25 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Encode: pay(string orderId)
+        // Generate orderId
         const orderId = "order_" + Date.now();
-        const functionSelector = "3ccfd60b"; // keccak256("pay(string)")[:4]
-        const encodedOrderId = stringToHex(orderId);
-        const paddedOrderId = padTo32Bytes(encodedOrderId);
-        const data = "0x" + functionSelector + paddedOrderId;
 
-        // Convert price to wei (1 XDC = 10^18 wei)
-        const valueInWei = (BigInt(price) * BigInt(1e18)).toString(16);
-        const valueHex = "0x" + (valueInWei === "0" ? "0" : valueInWei);
+        // Correct function selector for pay(string)
+        const functionSelector = "2b66d72e";
+
+        // ABI encode the string argument (dynamic type)
+        const orderIdHex = stringToHex(orderId);
+        const lengthHex = orderId.length.toString(16);
+        const paddedLength = padLeft(lengthHex, 64);
+        const offset = padLeft((32).toString(16), 64); // Offset to data (after length)
+        const paddedData = padRight(orderIdHex, Math.ceil(orderId.length / 32) * 64);
+        const encodedArgs = offset + paddedLength + paddedData;
+
+        const data = "0x" + functionSelector + encodedArgs;
+
+        // Convert price to wei
+        const valueInWei = (BigInt(price) * BigInt(10n ** 18n)).toString(16);
+        const valueHex = "0x" + valueInWei;
 
         // Send transaction
         const txHash = await window.ethereum.request({
@@ -107,6 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (err) {
         console.error("XDC Checkout Error:", err);
         alert("Payment failed: " + (err.message || "User rejected"));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = `Pay ${price} XDC`;
       }
     };
 
