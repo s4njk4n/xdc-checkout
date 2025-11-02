@@ -1,3 +1,5 @@
+_Note: This project is under construction_
+
 # xdc-checkout
 
 **Accept XDC payments on any website**
