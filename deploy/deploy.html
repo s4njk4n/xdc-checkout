@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Deploy Checkout Contract</title></head>
+<body>
+  <h2>Deploy Your XDC Checkout Contract</h2>
+  <button onclick="deploy()">Deploy Now (via XinPay)</button>
+  <p id="result"></p>
+
+  <script>
+    async function deploy() {
+      if (!window.xinPay) return alert("XinPay not found!");
+
+      // Compile Checkout.sol in Remix → copy bytecode below
+      const bytecode = "PASTE_BYTECODE_HERE_AFTER_COMPILING_IN_REMIX";
+
+      try {
+        const accounts = await window.xinPay.request({ method: "eth_requestAccounts" });
+        const tx = await window.xinPay.request({
+          method: "eth_sendTransaction",
+          params: [{ from: accounts[0], data: bytecode }]
+        });
+        document.getElementById("result").innerHTML = `
+          Deployed! Contract: <a href="https://xdcscan.io/address/${tx.contractAddress}" target="_blank">
+            ${tx.contractAddress}
+          </a>
+        `;
+      } catch (err) {
+        alert("Deploy failed: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
